@@ -4,7 +4,10 @@ import {
   Typography,
   Paper,
   Grid,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -37,10 +40,17 @@ const Home1 = () => {
   const {
     overviewFilters: { startDate, endDate }, // ✅ now from overviewFilters
   } = useSelector((state) => state.sales);
-  const { data: overviewData, isLoading: loading } = useOverviewQuery({
+  const {
+    data: overviewData,
+    isLoading: loading,
+    isFetching,
+    isSuccess,
+    refetch,
+  } = useOverviewQuery({
     DtFrom: startDate,
     DtTo: endDate,
   });
+  const canReload = isSuccess && !isFetching && overviewData != null;
 
   const handleDateChange = (key, value) => {
     if (value) {
@@ -106,6 +116,20 @@ const Home1 = () => {
               format="DD-MM-YYYY"
               slotProps={{ textField: { size: 'small' } }}
             />
+          </Grid>
+          <Grid item>
+            <Tooltip title="Reload overview data">
+              <span>
+                <IconButton
+                  aria-label="Reload overview data"
+                  onClick={() => refetch()}
+                  disabled={!canReload}
+                  color="primary"
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </span>
+            </Tooltip>
           </Grid>
         </Grid>
       </LocalizationProvider>

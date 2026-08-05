@@ -17,7 +17,10 @@ import {
   Typography,
   Pagination,
   CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import * as XLSX from 'xlsx';
 import { useDispatch, useSelector } from 'react-redux';
 import { useStockQuery } from '../../queries/stockQueries';
@@ -33,7 +36,14 @@ const Stock = () => {
 
   // Redux state
   const { mpnFilter, rowsPerPage, page } = useSelector((state) => state.stock);
-  const { data: stockData = [], isLoading: loading, isFetching, error } = useStockQuery();
+  const {
+    data: stockData = [],
+    isLoading: loading,
+    isFetching,
+    isSuccess,
+    error,
+    refetch,
+  } = useStockQuery();
 
   const [sortConfig, setSortConfig] = useState({ key: 'quantity', direction: 'asc' });
 
@@ -63,6 +73,7 @@ const Stock = () => {
   };
 
   const canExport = !loading && !isFetching && !error && sortedData.length > 0;
+  const canReload = isSuccess && !isFetching;
 
   return (
     <Box sx={{ px: { xs: 2, sm: 4 }, py: 4 }}>
@@ -70,9 +81,23 @@ const Stock = () => {
         <Typography variant="h5" fontWeight="bold" color="primary">
           Stock Data
         </Typography>
-        <Button variant="contained" onClick={exportToCSV} disabled={!canExport}>
-          Export to CSV
-        </Button>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Tooltip title="Reload stock data">
+            <span>
+              <IconButton
+                aria-label="Reload stock data"
+                onClick={() => refetch()}
+                disabled={!canReload}
+                color="primary"
+              >
+                <RefreshIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Button variant="contained" onClick={exportToCSV} disabled={!canExport}>
+            Export to CSV
+          </Button>
+        </Box>
       </Grid>
 
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, borderRadius: 2 }}>

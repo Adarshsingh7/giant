@@ -18,7 +18,10 @@ import {
   Typography,
   Grid,
   CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -41,7 +44,9 @@ const Sales = () => {
     data: queriedSalesData,
     isLoading: loading,
     isFetching,
+    isSuccess,
     error,
+    refetch,
   } = useSalesQuery({ DtFrom, DtTo });
 
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'asc' });
@@ -96,6 +101,7 @@ const Sales = () => {
   };
 
   const canExport = !loading && !isFetching && !error && filteredSortedData.length > 0;
+  const canReload = isSuccess && !isFetching && queriedSalesData != null;
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({
@@ -110,9 +116,23 @@ const Sales = () => {
         <Typography variant="h5" fontWeight="bold" color="primary">
           Sales Data
         </Typography>
-        <Button variant="contained" onClick={exportToCSV} disabled={!canExport}>
-          Export to CSV
-        </Button>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Tooltip title="Reload sales data">
+            <span>
+              <IconButton
+                aria-label="Reload sales data"
+                onClick={() => refetch()}
+                disabled={!canReload}
+                color="primary"
+              >
+                <RefreshIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Button variant="contained" onClick={exportToCSV} disabled={!canExport}>
+            Export to CSV
+          </Button>
+        </Box>
       </Grid>
 
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, borderRadius: 2 }}>
