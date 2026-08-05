@@ -2,14 +2,14 @@
 import { apiConnector } from '../apiConnector';
 import { SalesEndPoints } from '../api';
 
-export const fetchSalesData = async ({ DtFrom, DtTo, mpn }) => {
+export const fetchSalesData = async ({ DtFrom, DtTo }) => {
   try {
     const response = await apiConnector(
       'GET',
       SalesEndPoints.GET_SALES_API,
       null,
       {},
-      { DtFrom, DtTo, mpn } // ← pass as query params
+      { DtFrom, DtTo }
     );
     return response?.data;
   } catch (error) {

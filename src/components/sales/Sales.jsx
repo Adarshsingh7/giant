@@ -25,16 +25,24 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSales, setSalesFilters } from '../../slices/salesSlice';
+import { useSalesQuery } from '../../queries/salesQueries';
+import { filterByMpn, sortRows } from '../../utils/dataFilters';
+import { setSalesFilters } from '../../slices/salesSlice';
 
 const Sales = () => {
   const dispatch = useDispatch();
   const {
-    salesData,
-    loadingSales: loading,
-    errorSales: error,
     salesFilters: { startDate, endDate, mpn, rowsPerPage, page },
   } = useSelector((state) => state.sales);
+
+  const DtFrom = startDate ? dayjs(startDate).format('YYYY-MM-DD') : '';
+  const DtTo = endDate ? dayjs(endDate).format('YYYY-MM-DD') : '';
+  const {
+    data: queriedSalesData,
+    isLoading: loading,
+    isFetching,
+    error,
+  } = useSalesQuery({ DtFrom, DtTo });
 
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'asc' });
   const [mpnInput, setMpnInput] = useState(mpn || '');
@@ -50,18 +58,6 @@ const Sales = () => {
     updateFilter('page', 1);
   }, [mpn, startDate, endDate, updateFilter]);
 
-  useEffect(() => {
-    if (startDate && endDate) {
-      dispatch(
-        getSales({
-          DtFrom: dayjs(startDate).format('YYYY-MM-DD'),
-          DtTo: dayjs(endDate).format('YYYY-MM-DD'),
-          mpn,
-        })
-      );
-    }
-  }, [startDate, endDate, mpn, dispatch]);
-
   // Debounce MPN input filter
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -73,25 +69,19 @@ const Sales = () => {
   }, [mpnInput, updateFilter]);
 
   const filteredSortedData = useMemo(() => {
-    const data = [...(salesData || [])]
-      .filter((row) => {
+    const data = filterByMpn(
+      (queriedSalesData || []).filter((row) => {
         const rowDate = dayjs(row.date);
         return (
           (!startDate || rowDate.isAfter(dayjs(startDate).subtract(1, 'day'))) &&
-          (!endDate || rowDate.isBefore(dayjs(endDate).add(1, 'day'))) &&
-          (!mpn || row.mpn?.toLowerCase().includes(mpn.toLowerCase()))
+          (!endDate || rowDate.isBefore(dayjs(endDate).add(1, 'day')))
         );
-      })
-      .sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key])
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key])
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-      });
+      }),
+      mpn
+    );
 
-    return data;
-  }, [salesData, startDate, endDate, mpn, sortConfig]);
+    return sortRows(data, sortConfig);
+  }, [queriedSalesData, startDate, endDate, mpn, sortConfig]);
 
   const paginatedData = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
@@ -105,7 +95,7 @@ const Sales = () => {
     XLSX.writeFile(workbook, 'sales_data.csv');
   };
 
-  const canExport = !loading && !error && filteredSortedData.length > 0;
+  const canExport = !loading && !isFetching && !error && filteredSortedData.length > 0;
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({

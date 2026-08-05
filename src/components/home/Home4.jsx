@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -10,24 +10,17 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, Typography, Box } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { getSales } from "../../slices/salesSlice";
+import { useSelector } from "react-redux";
+import { useSalesQuery } from "../../queries/salesQueries";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 dayjs.extend(isoWeek);
 
 const Home4 = () => {
-  const dispatch = useDispatch();
-  const { salesData } = useSelector((state) => state.sales);
-   const {
-        overviewFilters: { startDate, endDate }} = useSelector((state) => state.sales);
-
-
-  useEffect(() => {
-  if (startDate && endDate) {
-    dispatch(getSales({ DtFrom: startDate, DtTo: endDate }));
-  }
-}, [dispatch, startDate, endDate]);
+  const {
+    overviewFilters: { startDate, endDate },
+  } = useSelector((state) => state.sales);
+  const { data: salesData = [] } = useSalesQuery({ DtFrom: startDate, DtTo: endDate });
 
 
   // Step 1: Group sales by ISO week and calculate total sales (price × quantity)

@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import EnhancedTable from './EnhancedTableCustom';
-import { useDispatch, useSelector } from 'react-redux';
-import { getOverview } from '../../slices/salesSlice';
+import { useSelector } from 'react-redux';
+import { useOverviewQuery } from '../../queries/salesQueries';
 
 const unitColumns = [
   { id: 'name', label: 'Category', numeric: false },
@@ -27,20 +27,13 @@ const categoryOrder = {
 };
 
 const Home2 = () => {
-  const dispatch = useDispatch();
-
   const {
-    overviewData,
-    loadingOverview: loading,
-    startDate,
-    endDate,
+    overviewFilters: { startDate, endDate },
   } = useSelector((state) => state.sales);
-
-  useEffect(() => {
-    if (startDate && endDate) {
-      dispatch(getOverview({ DtFrom: startDate, DtTo: endDate }));
-    }
-  }, [dispatch, startDate, endDate]);
+  const { data: overviewData, isLoading: loading } = useOverviewQuery({
+    DtFrom: startDate,
+    DtTo: endDate,
+  });
 
   const unitsRows = overviewData
     ? Object.values(overviewData.units || {})

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Typography,
@@ -11,8 +11,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import EnhancedTable from './EnhancedTableCustom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useOverviewQuery } from '../../queries/salesQueries';
 import {
-  getOverview,
   setOverviewFilters,
 } from '../../slices/salesSlice'; // ✅ use setOverviewFilters
 
@@ -36,15 +36,11 @@ const Home1 = () => {
 
   const {
     overviewFilters: { startDate, endDate }, // ✅ now from overviewFilters
-    overviewData,
-    loadingOverview: loading,
   } = useSelector((state) => state.sales);
-
-  useEffect(() => {
-    if (startDate && endDate) {
-      dispatch(getOverview({ DtFrom: startDate, DtTo: endDate }));
-    }
-  }, [dispatch, startDate, endDate]);
+  const { data: overviewData, isLoading: loading } = useOverviewQuery({
+    DtFrom: startDate,
+    DtTo: endDate,
+  });
 
   const handleDateChange = (key, value) => {
     if (value) {

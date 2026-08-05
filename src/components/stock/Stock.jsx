@@ -1,5 +1,5 @@
 /** @format */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -20,47 +20,28 @@ import {
 } from '@mui/material';
 import * as XLSX from 'xlsx';
 import { useDispatch, useSelector } from 'react-redux';
+import { useStockQuery } from '../../queries/stockQueries';
+import { filterByMpn, sortRows } from '../../utils/dataFilters';
 import {
-  getStock,
   setMpnFilter,
   setRowsPerPage,
   setPage,
-} from '../../slices/stockSlice'; // ✅ make sure this path is correct
+} from '../../slices/stockSlice';
 
 const Stock = () => {
   const dispatch = useDispatch();
 
   // Redux state
-  const { stockData, loading, error, mpnFilter, rowsPerPage, page } = useSelector(
-    (state) => state.stock
-  );
+  const { mpnFilter, rowsPerPage, page } = useSelector((state) => state.stock);
+  const { data: stockData = [], isLoading: loading, isFetching, error } = useStockQuery();
 
   const [sortConfig, setSortConfig] = useState({ key: 'quantity', direction: 'asc' });
 
-  // Fetch data once
-  useEffect(() => {
-    dispatch(getStock());
-  }, [dispatch]);
-
   // Filtered data
-  const filteredData = useMemo(
-    () =>
-      stockData.filter((row) =>
-        !mpnFilter || row.mpn?.toLowerCase().includes(mpnFilter.toLowerCase())
-      ),
-    [stockData, mpnFilter]
-  );
+  const filteredData = useMemo(() => filterByMpn(stockData, mpnFilter), [stockData, mpnFilter]);
 
   // Sorted data
-  const sortedData = useMemo(
-    () =>
-      [...filteredData].sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-      }),
-    [filteredData, sortConfig]
-  );
+  const sortedData = useMemo(() => sortRows(filteredData, sortConfig), [filteredData, sortConfig]);
 
   // Paginated data
   const paginatedData = sortedData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
@@ -81,7 +62,7 @@ const Stock = () => {
     XLSX.writeFile(workbook, 'stock_data.csv');
   };
 
-  const canExport = !loading && !error && sortedData.length > 0;
+  const canExport = !loading && !isFetching && !error && sortedData.length > 0;
 
   return (
     <Box sx={{ px: { xs: 2, sm: 4 }, py: 4 }}>
