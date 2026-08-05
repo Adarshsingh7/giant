@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   TextField,
@@ -39,9 +39,16 @@ const Sales = () => {
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'asc' });
   const [mpnInput, setMpnInput] = useState(mpn || '');
 
+  const updateFilter = useCallback(
+    (key, value) => {
+      dispatch(setSalesFilters({ [key]: value }));
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     updateFilter('page', 1);
-  }, [mpn, startDate, endDate]);
+  }, [mpn, startDate, endDate, updateFilter]);
 
   useEffect(() => {
     if (startDate && endDate) {
@@ -55,10 +62,6 @@ const Sales = () => {
     }
   }, [startDate, endDate, mpn, dispatch]);
 
-  const updateFilter = (key, value) => {
-    dispatch(setSalesFilters({ [key]: value }));
-  };
-
   // Debounce MPN input filter
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -67,7 +70,7 @@ const Sales = () => {
     }, 400); // delay for debounce
 
     return () => clearTimeout(handler);
-  }, [mpnInput]);
+  }, [mpnInput, updateFilter]);
 
   const filteredSortedData = useMemo(() => {
     const data = [...(salesData || [])]
@@ -102,6 +105,8 @@ const Sales = () => {
     XLSX.writeFile(workbook, 'sales_data.csv');
   };
 
+  const canExport = !loading && !error && filteredSortedData.length > 0;
+
   const handleSort = (key) => {
     setSortConfig((prev) => ({
       key,
@@ -115,7 +120,7 @@ const Sales = () => {
         <Typography variant="h5" fontWeight="bold" color="primary">
           Sales Data
         </Typography>
-        <Button variant="contained" onClick={exportToCSV} disabled={!salesData.length}>
+        <Button variant="contained" onClick={exportToCSV} disabled={!canExport}>
           Export to CSV
         </Button>
       </Grid>

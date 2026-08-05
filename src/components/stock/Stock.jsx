@@ -1,5 +1,5 @@
 /** @format */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -43,16 +43,24 @@ const Stock = () => {
   }, [dispatch]);
 
   // Filtered data
-  const filteredData = stockData.filter((row) =>
-    !mpnFilter || row.mpn?.toLowerCase().includes(mpnFilter.toLowerCase())
+  const filteredData = useMemo(
+    () =>
+      stockData.filter((row) =>
+        !mpnFilter || row.mpn?.toLowerCase().includes(mpnFilter.toLowerCase())
+      ),
+    [stockData, mpnFilter]
   );
 
   // Sorted data
-  const sortedData = [...filteredData].sort((a, b) => {
-    if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const sortedData = useMemo(
+    () =>
+      [...filteredData].sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      }),
+    [filteredData, sortConfig]
+  );
 
   // Paginated data
   const paginatedData = sortedData.slice((page - 1) * rowsPerPage, page * rowsPerPage);
@@ -73,13 +81,15 @@ const Stock = () => {
     XLSX.writeFile(workbook, 'stock_data.csv');
   };
 
+  const canExport = !loading && !error && sortedData.length > 0;
+
   return (
     <Box sx={{ px: { xs: 2, sm: 4 }, py: 4 }}>
       <Grid container justifyContent="space-between" alignItems="center" mb={3}>
         <Typography variant="h5" fontWeight="bold" color="primary">
           Stock Data
         </Typography>
-        <Button variant="contained" onClick={exportToCSV}>
+        <Button variant="contained" onClick={exportToCSV} disabled={!canExport}>
           Export to CSV
         </Button>
       </Grid>
