@@ -2,14 +2,14 @@
 import { apiConnector } from '../apiConnector';
 import { SalesEndPoints } from '../api';
 
-export const fetchSalesData = async ({ DtFrom, DtTo, mpn }) => {
+export const fetchSalesData = async ({ DtFrom, DtTo, mpn, loc }) => {
   try {
     const response = await apiConnector(
       'GET',
       SalesEndPoints.GET_SALES_API,
       null,
       {},
-      { DtFrom, DtTo, mpn } // ← pass as query params
+      { DtFrom, DtTo, mpn, loc }
     );
     return response?.data;
   } catch (error) {
@@ -18,14 +18,14 @@ export const fetchSalesData = async ({ DtFrom, DtTo, mpn }) => {
   }
 };
 
-export const fetchOverviewData = async ({ DtFrom, DtTo }) => {
+export const fetchOverviewData = async ({ DtFrom, DtTo, loc }) => {
   try {
     const response = await apiConnector(
       'GET',
       SalesEndPoints.GET_OVERVIEW_API,
       null,
-      {}, // no headers
-      { DtFrom, DtTo } // query parameters
+      {},
+      { DtFrom, DtTo, location: loc }
     );
     return response?.data;
   } catch (error) {

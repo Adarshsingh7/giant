@@ -5,7 +5,8 @@ import { fetchStockData } from '../service/operations/stockOperations';
 // Async thunk to fetch stock data
 export const getStock = createAsyncThunk('stock/getStock', async (_, thunkAPI) => {
   try {
-    const response = await fetchStockData();
+    const loc = thunkAPI.getState().location.selected.code;
+    const response = await fetchStockData({ loc });
     return response;
   } catch (error) {
     return thunkAPI.rejectWithValue(

@@ -35,16 +35,17 @@ const Home1 = () => {
   const dispatch = useDispatch();
 
   const {
-    overviewFilters: { startDate, endDate }, // ✅ now from overviewFilters
+    overviewFilters: { startDate, endDate },
     overviewData,
     loadingOverview: loading,
   } = useSelector((state) => state.sales);
+  const selectedLocation = useSelector((state) => state.location.selected.code);
 
   useEffect(() => {
     if (startDate && endDate) {
       dispatch(getOverview({ DtFrom: startDate, DtTo: endDate }));
     }
-  }, [dispatch, startDate, endDate]);
+  }, [dispatch, startDate, endDate, selectedLocation]);
 
   const handleDateChange = (key, value) => {
     if (value) {

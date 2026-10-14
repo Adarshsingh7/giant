@@ -35,6 +35,7 @@ const Sales = () => {
     errorSales: error,
     salesFilters: { startDate, endDate, mpn, rowsPerPage, page },
   } = useSelector((state) => state.sales);
+  const selectedLocation = useSelector((state) => state.location.selected.code);
 
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'asc' });
   const [mpnInput, setMpnInput] = useState(mpn || '');
@@ -60,7 +61,7 @@ const Sales = () => {
         })
       );
     }
-  }, [startDate, endDate, mpn, dispatch]);
+  }, [startDate, endDate, mpn, dispatch, selectedLocation]);
 
   // Debounce MPN input filter
   useEffect(() => {

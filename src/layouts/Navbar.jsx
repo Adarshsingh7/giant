@@ -8,11 +8,15 @@ import {
   Container,
   IconButton,
   Menu,
-  MenuItem
+  MenuItem,
+  Select,
+  FormControl,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLocation, LOCATIONS } from '../slices/locationSlice';
 import logo from '../assets/giant.png';
 
 const navItems = [
@@ -24,7 +28,14 @@ const navItems = [
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = useState(null);
+  const selectedLocation = useSelector((state) => state.location.selected);
+
+  const handleLocationChange = (event) => {
+    const loc = LOCATIONS.find((l) => l.code === event.target.value);
+    if (loc) dispatch(setLocation(loc));
+  };
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -53,11 +64,29 @@ const Navbar = () => {
             </Typography>
           </Box>
 
-          {/* Right Title & Hamburger */}
+          {/* Right Location Selector & Hamburger */}
           <Box display="flex" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 700, color: '#fff', mr: 1 }}>
-              BRISTOL
-            </Typography>
+            <FormControl size="small" sx={{ mr: 1 }}>
+              <Select
+                value={selectedLocation.code}
+                onChange={handleLocationChange}
+                sx={{
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,0.5)' },
+                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#fff' },
+                  '.MuiSvgIcon-root': { color: '#fff' },
+                }}
+              >
+                {LOCATIONS.map((loc) => (
+                  <MenuItem key={loc.code} value={loc.code}>
+                    {loc.display}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <IconButton color="inherit" onClick={handleMenuOpen}>
               <MenuIcon />
             </IconButton>

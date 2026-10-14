@@ -5,10 +5,10 @@ const BASE_URLS = import.meta.env.VITE_BASE_URLS;
 
 
 export const SalesEndPoints = {
-  GET_SALES_API: `${BASE_URLS}/Sales/getSales`,
-  GET_OVERVIEW_API: `${BASE_URLS}/Sales/getOverview`,
+  GET_SALES_API: `${BASE_URLS}/Sales/getSalesByLocation`,
+  GET_OVERVIEW_API: `${BASE_URLS}/Sales/getOverviewByLocation`,
 };
 
 export const StockEndPoints = {
-  GET_STOCK_API: `${BASE_URLS}/Stock/getStock`,
+  GET_STOCK_API: `${BASE_URLS}/Stock/getStockByLocation`,
 };

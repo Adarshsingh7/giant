@@ -19,15 +19,14 @@ dayjs.extend(isoWeek);
 const Home4 = () => {
   const dispatch = useDispatch();
   const { salesData } = useSelector((state) => state.sales);
-   const {
-        overviewFilters: { startDate, endDate }} = useSelector((state) => state.sales);
-
+  const { overviewFilters: { startDate, endDate } } = useSelector((state) => state.sales);
+  const selectedLocation = useSelector((state) => state.location.selected.code);
 
   useEffect(() => {
-  if (startDate && endDate) {
-    dispatch(getSales({ DtFrom: startDate, DtTo: endDate }));
-  }
-}, [dispatch, startDate, endDate]);
+    if (startDate && endDate) {
+      dispatch(getSales({ DtFrom: startDate, DtTo: endDate }));
+    }
+  }, [dispatch, startDate, endDate, selectedLocation]);
 
 
   // Step 1: Group sales by ISO week and calculate total sales (price × quantity)

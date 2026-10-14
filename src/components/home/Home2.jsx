@@ -32,15 +32,15 @@ const Home2 = () => {
   const {
     overviewData,
     loadingOverview: loading,
-    startDate,
-    endDate,
+    overviewFilters: { startDate, endDate },
   } = useSelector((state) => state.sales);
+  const selectedLocation = useSelector((state) => state.location.selected.code);
 
   useEffect(() => {
     if (startDate && endDate) {
       dispatch(getOverview({ DtFrom: startDate, DtTo: endDate }));
     }
-  }, [dispatch, startDate, endDate]);
+  }, [dispatch, startDate, endDate, selectedLocation]);
 
   const unitsRows = overviewData
     ? Object.values(overviewData.units || {})

@@ -12,7 +12,8 @@ export const getSales = createAsyncThunk(
   'sales/getSales',
   async ({ DtFrom, DtTo, mpn }, thunkAPI) => {
     try {
-      const res = await fetchSalesData({ DtFrom, DtTo, mpn });
+      const loc = thunkAPI.getState().location.selected.code;
+      const res = await fetchSalesData({ DtFrom, DtTo, mpn, loc });
       return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);
@@ -24,7 +25,8 @@ export const getOverview = createAsyncThunk(
   'sales/getOverview',
   async ({ DtFrom, DtTo }, thunkAPI) => {
     try {
-      const res = await fetchOverviewData({ DtFrom, DtTo });
+      const loc = thunkAPI.getState().location.selected.code;
+      const res = await fetchOverviewData({ DtFrom, DtTo, loc });
       return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || error.message);

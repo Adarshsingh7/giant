@@ -30,17 +30,16 @@ import {
 const Stock = () => {
   const dispatch = useDispatch();
 
-  // Redux state
   const { stockData, loading, error, mpnFilter, rowsPerPage, page } = useSelector(
     (state) => state.stock
   );
+  const selectedLocation = useSelector((state) => state.location.selected.code);
 
   const [sortConfig, setSortConfig] = useState({ key: 'quantity', direction: 'asc' });
 
-  // Fetch data once
   useEffect(() => {
     dispatch(getStock());
-  }, [dispatch]);
+  }, [dispatch, selectedLocation]);
 
   // Filtered data
   const filteredData = useMemo(
