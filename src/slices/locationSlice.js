@@ -2,8 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 export const LOCATIONS = [
-  { code: '06', label: 'Bristol', display: '06 Bristol' },
-  { code: '08', label: 'Southampton', display: '08 Southampton' },
+  { code: '06', label: 'Bristol', display: 'Bristol' },
+  { code: '08', label: 'Southampton', display: 'Southampton' },
 ];
 
 const locationSlice = createSlice({
